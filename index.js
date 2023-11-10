@@ -1,99 +1,168 @@
-import React, { useState } from "react";
-import Footer from "../../components/Footer/index.js";
-import { Box, Paper, Typography, Button } from "@mui/material";
-import Header from "../../components/Header/index.js";
-import Grid from '@mui/material/Grid';
-import axios from "axios"; // Import Axios
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import ShieldMoonIcon from '@mui/icons-material/ShieldMoon';
+import { Link } from 'react-router-dom'; 
 
-function Upload() {
-  const [selectedFile, setSelectedFile] = useState(null);
+const pages = ['Upload', 'Search for Reports']; //define possible options in the main nav bar
+const settings = ['Profile', 'Account', 'Dashboard', 'Logout']; //define possible options in the user menu bar
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
+function Header() {
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  {/*Provide logic to open and close relvant menu bar*/}
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget); 
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
 
-  const handleUpload = () => {
-    if (!selectedFile) {
-      alert("Please select .sol file to upload.");
-      return;
-    }
-    // FormData object to send the selected file
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    
-    // Uplading file
-    console.log("File Uploading", selectedFile.name);
-    //clear file after uploading
-    // setSelectedFile(null);
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
 
-    // HTTP POST request to backend API using Axios
-    axios
-      .post("http://localhost:8000/remediation/", formData) //FastAPI server URL 
-      
-      .then((response) => {
-        // Handle the response from backend
-        console.log("Response from backend:", response.data);
-        // Clear the selected file
-        setSelectedFile(null);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        // Handle any errors
-      });
-      
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
 
   return (
-    <Grid container spacing={2} align="center" flexDirection="column">
-      <Grid item xs={12}>
-        {/* Show Header */}
-        <Header />
-      </Grid>
+    <AppBar position="static" style={{ backgroundColor: '#62569C' }}> {/*Define header bar in a darker purple*/}
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <ShieldMoonIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> {/*display this for md or larger viewports*/}
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+            COS30049_Group2-53
+          </Typography> {/*text to display for large viewport navbar*/}
 
-      <Box display="flex" flexDirection="column" align="center" style={{ padding: '50px' }}>
-        <Typography style={{ justifyContent: 'center' }}>
-          {/* Image on upload page */}
-          <img src={require("../../assets/images/emoji_3.png")} alt="[report investigatation]" className="center" width='160' height='240' /><br />
-        </Typography>
-        <Box sx={{ display: "inline-flex" }}>
-          <Grid item xs={12} display='flex' justifyContent='center' style={{ paddingBottom: '50px' }}>
-            <Paper style={{ padding: '20px', justifyContent: 'center' }}>
-              <Typography style={{ justifyContent: 'center' }}>
-                We accept solidity (.sol) contracts of file size less than 5 MB.
-              </Typography>
-              <Typography style={{ padding: '5px' }}></Typography>
-              <label htmlFor="fileInput" style={{ display: "block" }}>
-                <input
-                  type="file"
-                  accept=".sol"
-                  id="fileInput"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-                <Button
-                  variant="outlined"
-                  style={{ color: "#62569C", borderColor: "#62569C", outlineColor: "#62569C" }}
-                  component="span"
-                >
-                  Select File
-                </Button>
-                <Typography style={{ padding: '10px' }}>then </Typography>
-              </label>
-              <Button variant="outlined" style={{ color: '#62569C', borderColor: '#62569C', outlineColor: '#62569C' }} onClick={handleUpload}>
-                Confirm upload here!
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}> {/*display this for small or x-small viewports*/}
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}
+                sx={{ my: 2, display: 'block', textDecoration: "underline" }}
+                component={page === 'Upload' || page === 'Search for Reports' ? Link : 'button'}
+                to={page === 'Upload' ? '/' : page === 'Search for Reports' ? '/reportarea' : undefined}> {/*Provide possible routing options based on selected option in the navbar*/}
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          <ShieldMoonIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          <Typography
+            variant="h5"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+         COS30049_Group2-53 
+          </Typography>{/*display this on the small or x-small viewport*/}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}> {/*Create navbar reactions from click*/}
+            {pages.map((page) => (
+              <Button
+              key={page}
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: 'white', display: 'block', textDecoration: "underline" }}
+              component={page === 'Upload' || page === 'Search for Reports' ? Link : 'button'}
+              to={page === 'Upload' ? '/' : page === 'Search for Reports' ? '/reportarea' : undefined}> {/*Provide possible routing options based on selected option in the navbar*/}
+                {page}
               </Button>
-            </Paper>
-          </Grid>
-        </Box>
-      </Box>
+            ))}
+          </Box>
 
-      <Grid item xs={12}>
-        {/* Show footer */}
-        <Footer />
-      </Grid>
-    </Grid>
+          <Box sx={{ flexGrow: 0 }}> {/*user menu bar*/}
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="MUI Logo" src={require("../../assets/images/MUI.png")} />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography textAlign="center">{setting}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
-
-export default Upload;
+export default Header;
